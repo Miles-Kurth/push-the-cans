@@ -139,40 +139,53 @@ def driveToCan():
     wait(100)
     robot.brake()
 
+# End methods
+
+obstacleNumber = 0
+
+while not obstacleNumber == 5:
+    while not (laser_sensor.distance()) > 600:
+        continue
+    robot.drive(100,100)
+    while not (laser_sensor.distance()) < 600:
+        continue
+    obstacle_number = obstacle_number + 1
+    robot.brake()
+    robot.drive(100,0)
 
 
 # Code below
 
-start()
+# start()
 
-canWidth = 50
-canAngle = 0
-canDistance = 0
+# canWidth = 50
+# canAngle = 0
+# canDistance = 0
 
-startTurnDynamic(400)
-while True:
-    printLaserDistance()
-    # printGyroAngle()
-    # print(left_motor.angle())
-    # print(time.time())
-    if (laser_sensor.distance() < 400):
-        printLaserDistance()
-        canAngle = gyro_sensor.angle()
-        canDistance = laser_sensor.distance()
-        robot.brake()
-        break
-wait(300)
-print(str(canAngle) + " " + str(gyro_sensor.angle()))
+# startTurnDynamic(400)
+# while True:
+#     printLaserDistance()
+#     # printGyroAngle()
+#     # print(left_motor.angle())
+#     # print(time.time())
+#     if (laser_sensor.distance() < 400):
+#         printLaserDistance()
+#         canAngle = gyro_sensor.angle()
+#         canDistance = laser_sensor.distance()
+#         robot.brake()
+#         break
+# wait(300)
+# print(str(canAngle) + " " + str(gyro_sensor.angle()))
 
-startTurnDynamic(-100)
-while (laser_sensor.distance() > canDistance + 25):
-    printGyroAngle()
-    printLaserDistance()
-    if (abs(canDistance - laser_sensor.distance()) < 5):
-        robot.brake()
-        break
+# startTurnDynamic(-100)
+# while (laser_sensor.distance() > canDistance + 25):
+#     printGyroAngle()
+#     printLaserDistance()
+#     if (abs(canDistance - laser_sensor.distance()) < 5):
+#         robot.brake()
+#         break
 
-driveToCan()
+# driveToCan()
 
 
 # Gyro and laser test
