@@ -106,17 +106,20 @@ def turn90Degrees(degrees):
     elif (degrees > 0):
         robot.drive(0,90)
         while (gyro_sensor.angle() < 80):
-            printGyroAngle()
+            # printGyroAngle()
+            wait(1)
     elif (degrees < 0):
         robot.drive(0,-90)
         while (gyro_sensor.angle() > -80):
-            printGyroAngle()
+            # printGyroAngle()
+            wait(1)
     robot.stop()
     wait(300)
     printGyroAngle()
 
 
 def start():
+    robot.brake()
     gyro_sensor.reset_angle(0)
     left_motor.reset_angle(0)
     right_motor.reset_angle(0)
@@ -125,11 +128,24 @@ def start():
 def startTurnDynamic(speed):
     if (speed > 0):
         left_motor.run(1 * speed)
-        right_motor.run(-0 * speed)
-    else:
-        left_motor.run(0 * speed)
         right_motor.run(-1 * speed)
-    
+    else:
+        left_motor.run(1 * speed)
+        right_motor.run(-1 * speed)
+
+def turnToAngle(angle):
+    if (gyro_sensor.angle() % 360 > angle % 360):
+        startTurnDynamic(-80)
+        while (gyro_sensor.angle() % 360 > angle % 360):
+            # printGyroAngle()
+            wait(1)
+    elif (gyro_sensor.angle() % 360 < angle % 360):
+        startTurnDynamic(80)
+        while (gyro_sensor.angle() % 360 < angle % 360):
+            # printGyroAngle()
+            wait(1)
+    else:
+        print("Already at specified angle!")
 
 def driveToCan():
     printLaserDistance()
@@ -141,17 +157,45 @@ def driveToCan():
 
 # End methods
 
+
 obstacleNumber = 0
 
-while not obstacleNumber == 5:
-    while not (laser_sensor.distance()) > 600:
-        continue
-    robot.drive(100,100)
-    while not (laser_sensor.distance()) < 600:
-        continue
-    obstacle_number = obstacle_number + 1
-    robot.brake()
-    robot.drive(100,0)
+start()
+startTurnDynamic(100)
+wait(10)
+
+while (gyro_sensor.angle() < 360):
+    #print(obstacleNumber)
+    while (laser_sensor.distance()) > 500:
+        if (gyro_sensor.angle() >= 360): break
+        wait(1)
+    if (gyro_sensor.angle() >= 360): break
+
+    obstacleNumber += 1
+    print("Adding")
+
+    while (laser_sensor.distance()) < 500:
+        if (gyro_sensor.angle() >= 360): break
+        wait(1)
+    print(obstacleNumber)
+    if (gyro_sensor.angle() >= 360): break
+    
+
+print("Loop is over")
+
+printGyroAngle()
+# gyro_sensor.reset_angle(0)
+print(obstacleNumber)
+
+if (obstacleNumber >= 5):
+    turn90Degrees(-1)
+else:
+    turn90Degrees(1)
+
+robot.brake()
+robot.drive(200,0)
+
+
 
 
 # Code below
@@ -194,4 +238,4 @@ while not obstacleNumber == 5:
 #     printLaserDistance()
 
 
-wait(1000)
+wait(1500)
