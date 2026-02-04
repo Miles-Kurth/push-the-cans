@@ -127,7 +127,7 @@ def start():
     playNote("A")
     playNote("C#")
     playNote("E")
-    
+
     wait(10)
 
 def resetWheelAngles():
@@ -164,8 +164,9 @@ def pushCanOut():
     printLaserDistance()
     resetWheelAngles()
     robot.drive(1000,0)
-    while (left_motor.angle() < 750):
+    while (left_motor.angle() < 800):
         wait(1)
+    robot.straight(100)
     print("Left angle: " + str(left_motor.angle()))
     print("Right angle: " + str(right_motor.angle()))
     global cansPushed; cansPushed += 1
@@ -221,6 +222,8 @@ def playNote(note):
 
 
 # Code below
+
+# Push the cans #1 is DONE
 
 start()
 
