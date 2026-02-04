@@ -67,55 +67,11 @@ ev3.speaker.set_volume(20); #ev3.speaker.beep(660,200)
 
 # Functions
 
-def armTurnRight():
-    global armDirection; armDirection = "Right"
-    arm_motor.run_until_stalled(-500,then=Stop.HOLD,duty_limit=40)
-    wait(100)
-    
-def armTurnLeft():
-    global armDirection; armDirection = "Left"
-    arm_motor.run_until_stalled(500,then=Stop.HOLD,duty_limit=40)
-    wait(100)
-
-def armTurnForwardRight():
-    armTurnRight()
-    global armDirection; armDirection = "Forward-Right"
-    wait(400)
-    arm_motor.reset_angle(0)
-    arm_motor.run_target(-100,60,then=Stop.HOLD,wait=True)
-
-def armTurnForwardLeft():
-    armTurnLeft()
-    global armDirection; armDirection = "Forward-Left"
-    wait(400)
-    arm_motor.reset_angle(0)
-    arm_motor.run_target(100,-60,then=Stop.HOLD,wait=True)
-
-
 def printLaserDistance():
     print("Laser distance: " + str(laser_sensor.distance()) + "mm")
 
 def printGyroAngle():
     print("Gyro: " + str(gyro_sensor.angle()) + "°")
-
-def turn90Degrees(degrees):
-    gyro_sensor.reset_angle(0)
-    print(degrees)
-    if (degrees == 0):
-        printGyroAngle()
-    elif (degrees > 0):
-        robot.drive(0,90)
-        while (gyro_sensor.angle() < 80):
-            # printGyroAngle()
-            wait(1)
-    elif (degrees < 0):
-        robot.drive(0,-90)
-        while (gyro_sensor.angle() > -80):
-            # printGyroAngle()
-            wait(1)
-    robot.stop()
-    wait(300)
-    printGyroAngle()
 
 
 def start():
