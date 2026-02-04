@@ -123,7 +123,16 @@ def start():
     gyro_sensor.reset_angle(0)
     left_motor.reset_angle(0)
     right_motor.reset_angle(0)
+    ev3.speaker.set_volume(20)
+    playNote("A")
+    playNote("C#")
+    playNote("E")
+    
     wait(10)
+
+def resetWheelAngles():
+    left_motor.reset_angle(0)
+    right_motor.reset_angle(0)
 
 def startTurnDynamic(speed):
     if (speed > 0):
@@ -147,89 +156,87 @@ def turnToAngle(angle):
     else:
         print("Already at specified angle!")
 
-def driveToCan():
+def waitUntilNextCan():
+    while (laser_sensor.distance() > 500):
+        print("Turning...")
+
+def pushCanOut():
     printLaserDistance()
+    resetWheelAngles()
     robot.drive(1000,0)
-    while (laser_sensor.distance() > 110):
-        printLaserDistance()
-    wait(100)
+    while (left_motor.angle() < 750):
+        wait(1)
+    print("Left angle: " + str(left_motor.angle()))
+    print("Right angle: " + str(right_motor.angle()))
+    global cansPushed; cansPushed += 1
     robot.brake()
+    playNote("B")
+    playNote("E")
+    wait(10)
+
+def returnToCenter():
+    robot.drive(-800,0)
+    while (left_motor.angle() > 200):
+        wait(1)
+    robot.drive(-200,0)
+    while (left_motor.angle() > 50):
+        wait(1)
+    print("Left angle: " + str(left_motor.angle()))
+    print("Right angle: " + str(right_motor.angle()))
+    robot.brake()
+    playNote("F")
+    playNote("G")
+    wait(10)
+
+
+def playNote(note):
+    if (note == "A"):
+        ev3.speaker.beep(440)
+    if (note == "A#"):
+        ev3.speaker.beep(466.1637615)
+    if (note == "B"):
+        ev3.speaker.beep(493.8833013)
+    if (note == "C"):
+        ev3.speaker.beep(523.2511306)
+    if (note == "C#"):
+        ev3.speaker.beep(554.365262)
+    if (note == "D"):
+        ev3.speaker.beep(587.3295358)
+    if (note == "D#"):
+        ev3.speaker.beep(622.2539674)
+    if (note == "E"):
+        ev3.speaker.beep(659.2551138)
+    if (note == "F"):
+        ev3.speaker.beep(698.4564629)
+    if (note == "F#"):
+        ev3.speaker.beep(739.9888454)
+    if (note == "G"):
+        ev3.speaker.beep(783.990872)
+    if (note == "G#"):
+        ev3.speaker.beep(830.6093952)
+    if (note == "A5"):
+        ev3.speaker.beep(880)
 
 # End methods
 
 
-obstacleNumber = 0
-
-start()
-startTurnDynamic(100)
-wait(10)
-
-while (gyro_sensor.angle() < 360):
-    #print(obstacleNumber)
-    while (laser_sensor.distance()) > 500:
-        if (gyro_sensor.angle() >= 360): break
-        wait(1)
-    if (gyro_sensor.angle() >= 360): break
-
-    obstacleNumber += 1
-    print("Adding")
-
-    while (laser_sensor.distance()) < 500:
-        if (gyro_sensor.angle() >= 360): break
-        wait(1)
-    print(obstacleNumber)
-    if (gyro_sensor.angle() >= 360): break
-    
-
-print("Loop is over")
-
-printGyroAngle()
-# gyro_sensor.reset_angle(0)
-print(obstacleNumber)
-
-if (obstacleNumber >= 5):
-    turn90Degrees(-1)
-else:
-    turn90Degrees(1)
-
-robot.brake()
-robot.drive(200,0)
-
-
-
-
 # Code below
 
-# start()
+start()
 
-# canWidth = 50
-# canAngle = 0
-# canDistance = 0
+cansPushed = 0
 
-# startTurnDynamic(400)
-# while True:
-#     printLaserDistance()
-#     # printGyroAngle()
-#     # print(left_motor.angle())
-#     # print(time.time())
-#     if (laser_sensor.distance() < 400):
-#         printLaserDistance()
-#         canAngle = gyro_sensor.angle()
-#         canDistance = laser_sensor.distance()
-#         robot.brake()
-#         break
-# wait(300)
-# print(str(canAngle) + " " + str(gyro_sensor.angle()))
-
-# startTurnDynamic(-100)
-# while (laser_sensor.distance() > canDistance + 25):
-#     printGyroAngle()
-#     printLaserDistance()
-#     if (abs(canDistance - laser_sensor.distance()) < 5):
-#         robot.brake()
-#         break
-
-# driveToCan()
+while (cansPushed <= 4):
+    startTurnDynamic(100)
+    waitUntilNextCan()
+    pushCanOut()
+    returnToCenter()
+playNote("A5")
+wait(10)
+playNote("A5")
+wait(10)
+playNote("A5")
+robot.brake()
 
 
 # Gyro and laser test
