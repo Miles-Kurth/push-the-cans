@@ -195,12 +195,12 @@ while (cansPushed <= 4):
     waitUntilNextCan()
     pushCanOut()
     returnToCenter()
-playNote("A5")
-wait(10)
-playNote("A5")
-wait(10)
-playNote("A5")
 robot.brake()
+for (i in range(3)){
+    playNote("A5")
+    wait(10)
+}
+
 
 
 # Gyro and laser test
