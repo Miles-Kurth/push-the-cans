@@ -28,7 +28,7 @@ class LaserSensor:
 
     def distance(self):
         now = time.time()
-        if now - self.last_time > 0.03:
+        if now - self.last_time > 0.1:
             self.last_time = now
             results = self.i2c.read(0x42, 2)
             self.last_dist = results[0] + (results[1] << 8)
@@ -59,6 +59,7 @@ speed = 200 # mm/s
 # The axle track is the distance between the points where the wheels
 # touch the ground.
 robot = DriveBase(left_motor, right_motor, wheel_diameter=55.5, axle_track=104) #104 -> 119?
+#robot.settings()
 
 # At start
 ev3.speaker.set_volume(20); #ev3.speaker.beep(660,200)
@@ -98,14 +99,15 @@ def startTurnDynamic(speed):
         left_motor.run(1 * speed)
         right_motor.run(-1 * speed)
 
-def turnToAngle(angle):
+def turnToAngle(angle, speed):
+    printGyroAngle()
     if (gyro_sensor.angle() % 360 > angle % 360):
-        startTurnDynamic(-80)
+        startTurnDynamic(0 - speed)
         while (gyro_sensor.angle() % 360 > angle % 360):
             # printGyroAngle()
             wait(1)
     elif (gyro_sensor.angle() % 360 < angle % 360):
-        startTurnDynamic(80)
+        startTurnDynamic(speed)
         while (gyro_sensor.angle() % 360 < angle % 360):
             # printGyroAngle()
             wait(1)
@@ -114,7 +116,8 @@ def turnToAngle(angle):
 
 def waitUntilNextCan():
     while (laser_sensor.distance() > 500):
-        print("Turning...")
+        # print("Turning...")
+        continue
 
 def waitUntilCanEnds():
     while (laser_sensor.distance() < 500):
@@ -123,31 +126,60 @@ def waitUntilCanEnds():
 def pushCanOut():
     printLaserDistance()
     resetWheelAngles()
-    robot.drive(1000,-10)
-    while (left_motor.angle() < 800):
-        wait(1)
-    robot.straight(100)
+    robot.drive(1000,0)
+    while (color_sensor.reflection() > 8):
+        continue
+    robot.brake()
     print("Left angle: " + str(left_motor.angle()))
     print("Right angle: " + str(right_motor.angle()))
     global cansPushed; cansPushed += 1
-    robot.brake()
     playNote("B")
     playNote("E")
-    wait(10)
+    wait(1)
 
 def returnToCenter():
-    robot.drive(-800,0)
-    while (left_motor.angle() > 200):
-        wait(1)
+    robot.drive(-800,-5)
+    while (left_motor.angle() > 250):
+        continue
     robot.drive(-200,0)
     while (left_motor.angle() > 50):
-        wait(1)
+        continue
     print("Left angle: " + str(left_motor.angle()))
     print("Right angle: " + str(right_motor.angle()))
     robot.brake()
     playNote("F")
     playNote("G")
-    wait(10)
+    wait(1)
+
+def driveToCenterStart():
+    robot.drive(1000,0)
+    while (color_sensor.reflection() > 8):
+        continue
+    # robot.drive(1000,0)
+    # # while (left_motor.angle() < 800):
+    # #     continue
+    # wait(800)
+    # robot.brake()
+    robot.straight(500,then=Stop.BRAKE)
+    print("at center")
+    wait(1)
+
+def returnToHouse():
+    # turnToAngle(180, 200)
+    printGyroAngle()
+    startTurnDynamic(-200)
+    gyro_sensor.reset_angle((gyro_sensor.angle() % 360) + 90)
+    printGyroAngle()
+    while (gyro_sensor.angle() > 0):
+        # printGyroAngle()
+        continue
+    printGyroAngle()
+    robot.drive(1000,20)
+    while (color_sensor.reflection() > 8):
+        continue
+    robot.drive(1000,0)
+    wait(500)
+    robot.brake()
 
 
 def playNote(note):
@@ -183,18 +215,22 @@ def playNote(note):
 
 # Code below
 
-# Push the cans #1 is DONE
-
 start()
 
 cansPushed = 0
 
-while (cansPushed <= 4):
-    startTurnDynamic(130)
+driveToCenterStart() 
+
+while (cansPushed <= 4):   
+    startTurnDynamic(120)
     waitUntilCanEnds()
     waitUntilNextCan()
     pushCanOut()
     returnToCenter()
+    
+
+returnToHouse()
+
 playNote("A5")
 wait(10)
 playNote("A5")
