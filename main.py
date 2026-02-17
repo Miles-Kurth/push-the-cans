@@ -28,7 +28,7 @@ class LaserSensor:
 
     def distance(self):
         now = time.time()
-        if now - self.last_time > 0.1:
+        if now - self.last_time > 0.08:
             self.last_time = now
             results = self.i2c.read(0x42, 2)
             self.last_dist = results[0] + (results[1] << 8)
@@ -121,12 +121,13 @@ def waitUntilNextCan():
 
 def waitUntilCanEnds():
     while (laser_sensor.distance() < 500):
-        print("Turning...")
+        # print("Turning...")
+        continue
 
 def pushCanOut():
     printLaserDistance()
     resetWheelAngles()
-    robot.drive(1000,0)
+    robot.drive(1000,-5)
     while (color_sensor.reflection() > 8):
         continue
     robot.brake()
@@ -166,11 +167,13 @@ def driveToCenterStart():
 
 def returnToHouse():
     # turnToAngle(180, 200)
+    print("Heading home!")
+
     printGyroAngle()
     startTurnDynamic(-200)
-    gyro_sensor.reset_angle((gyro_sensor.angle() % 360) + 90)
+    # gyro_sensor.reset_angle((gyro_sensor.angle() % 360) + 90)
     printGyroAngle()
-    while (gyro_sensor.angle() > 0):
+    while (gyro_sensor.angle() > 190): #increase to turn farther?
         # printGyroAngle()
         continue
     printGyroAngle()
@@ -231,12 +234,12 @@ while (cansPushed <= 4):
 
 returnToHouse()
 
-playNote("A5")
-wait(10)
-playNote("A5")
-wait(10)
-playNote("A5")
+for i in range(3):
+    playNote("A5")
+    wait(10)
+
 robot.brake()
+
 
 
 # Gyro and laser test
